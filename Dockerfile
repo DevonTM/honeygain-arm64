@@ -1,15 +1,24 @@
-FROM ubuntu:latest
+FROM debian:bookworm-slim
 
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y libgcc-s1-amd64-cross curl unzip && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+ARG BOX64_VERSION=v0.2.4
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+ && apt-get upgrade -y \
+ && apt-get install -y \
+      ca-certificates \
+      curl \
+      libgcc-s1-amd64-cross \
+      unzip \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/* \
+ && update-ca-certificates
 
 COPY root /
 
-RUN curl -LO https://github.com/ptitSeb/box64/releases/latest/download/box64-GENERIC_ARM-RelWithDebInfo.zip
-
-RUN unzip box64-GENERIC_ARM-RelWithDebInfo.zip -d /app && rm -f box64-GENERIC_ARM-RelWithDebInfo.zip && chmod +x /app/box64
+RUN curl -LO https://github.com/ptitSeb/box64/releases/download/${BOX64_VERSION}/box64-GENERIC_ARM-RelWithDebInfo.zip \
+ && unzip box64-GENERIC_ARM-RelWithDebInfo.zip -d /bin \
+ && rm -f box64-GENERIC_ARM-RelWithDebInfo.zip \
+ && chmod +x /bin/box64
 
 ENTRYPOINT ["/init.sh"]
